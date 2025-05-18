@@ -90,18 +90,23 @@
         document.getElementById('year').textContent = new Date().getFullYear();
     </script>
     <script>
-        const scrollContainer = document.querySelector('.image-scroll-container');
-        const scrollTrack = document.querySelector('.image-scroll-track');
+        window.addEventListener('load', () => {
+            const scrollContainer = document.querySelector('.image-scroll-container');
+            const scrollTrack = document.querySelector('.image-scroll-track');
 
-        if (scrollContainer && scrollTrack) {
+            if (!scrollContainer || !scrollTrack) return;
+
             let isDragging = false;
             let startX;
             let initialTransformX = 0;
-            
-            // Define the scroll distances for seamless loop based on CSS keyframes
-            // These are the negative values of the total scroll width for one set of unique images
-            const desktopScrollStartOffset = -2430; // As per @keyframes scroll-left-to-right 0% for desktop
-            const mobileScrollStartOffset = -1422;  // As per @keyframes scroll-left-to-right 0% for mobile
+
+            // Dynamically calculate the negative offset representing one full set of images
+            let scrollStartOffset = -scrollTrack.scrollWidth / 2;
+
+            const updateScrollOffset = () => {
+                scrollStartOffset = -scrollTrack.scrollWidth / 2;
+            };
+            window.addEventListener('resize', updateScrollOffset);
 
             const getCurrentTranslateX = () => {
                 if (!scrollTrack) return 0;
@@ -131,7 +136,7 @@
                 // Prevent dragging beyond the logical limits of the duplicated content
                 // Max positive transform should be 0 (start of first set)
                 // Min negative transform should be -totalScrollWidth (start of second set, which is our animation start)
-                const scrollStartOffset = window.innerWidth <= 480 ? mobileScrollStartOffset : desktopScrollStartOffset;
+                const currentStartOffset = scrollStartOffset;
                 
                 // If newTransformX goes beyond 0 (dragging too far right), cap it at 0.
                 if (newTransformX > 0) newTransformX = 0;
@@ -142,7 +147,7 @@
                 // The full track (original + duplicate) effectively runs from scrollStartOffset to scrollStartOffset + (-scrollStartOffset) = 0 for the first set,
                 // and then from 0 to -scrollStartOffset for the second set (if we were to think of it as one long strip).
                 // So, the leftmost point is scrollStartOffset.
-                if (newTransformX < scrollStartOffset) newTransformX = scrollStartOffset;
+                if (newTransformX < currentStartOffset) newTransformX = currentStartOffset;
 
 
                 scrollTrack.style.transform = `translateX(${newTransformX}px)`;
@@ -155,7 +160,7 @@
                 // Normalize position before resuming animation
                 // This ensures the animation resumes smoothly from a valid point in its cycle.
                 let currentX = getCurrentTranslateX();
-                const scrollAmount = window.innerWidth <= 480 ? mobileScrollStartOffset : desktopScrollStartOffset; // This is a negative value
+                const scrollAmount = scrollStartOffset; // Negative value representing one cycle
                 
                 // Calculate the effective position within one cycle of the animation
                 // The animation cycle is from scrollAmount to 0.
@@ -203,7 +208,7 @@
                     // We explicitly pause, reset to the start of the animation's defined path, reflow, and resume.
                     // This helps ensure a smoother transition at the loop point.
                     // scrollTrack.style.animationPlayState = 'paused';
-                    // const startOffset = window.innerWidth <= 480 ? mobileScrollStartOffset : desktopScrollStartOffset;
+                    // const startOffset = scrollStartOffset;
                     // scrollTrack.style.transform = `translateX(${startOffset}px)`;
                     // void scrollTrack.offsetWidth; // Force reflow to apply the transform before resuming animation
                     // scrollTrack.style.animationPlayState = 'running';
@@ -223,7 +228,7 @@
                 }
             });
             scrollContainer.style.cursor = 'grab';
-        }
+        });
     </script>
 </body>
 </html>
