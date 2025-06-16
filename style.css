@@ -572,7 +572,7 @@ img {
     /* Calculate width based on number of images and their width + margin.
        For now, let it be determined by its content.
        If images are duplicated for smooth scroll, this track will be 2x the width of unique images. */
-    animation: scroll-left-to-right 20s linear infinite; /* Changed direction and name */
+    animation: scroll-left-to-right 20s linear infinite;
     will-change: transform; /* Hint for animation performance */
     transform: translateZ(0); /* Promote hardware acceleration */
 }
@@ -587,29 +587,21 @@ img {
     flex-shrink: 0; /* Prevent images from shrinking */
 }
 
-/* Keyframes using exact pixel value for desktop (reversed) */
+/* Keyframes for seamless marquee scroll */
 @keyframes scroll-left-to-right {
-    0% {
-        transform: translateX(-2430px); /* 9 * (250px + 20px) - Start from the "end" */
+    from {
+        transform: translateX(0);
     }
-    100% {
-        transform: translateX(0); /* Scroll to the beginning */
+    to {
+        transform: translateX(-50%);
     }
 }
 
-/* Redefine keyframes inside mobile media query (reversed) */
+/* Mobile-specific overrides */
 @media (max-width: 480px) {
     /* ... other mobile styles ... */
 
-    /* Redefine keyframes using exact pixel value for mobile (reversed) */
-    @keyframes scroll-left-to-right {
-        0% {
-            transform: translateX(-1422px); /* 9 * (150px + 8px) - Start from the "end" */
-        }
-        100% {
-            transform: translateX(0); /* Scroll to the beginning */
-        }
-    }
+    /* Reuse the same percentage-based keyframes on mobile */
     /* Ensure mobile animation speed override is still applied */
     .image-scroll-track {
         animation-duration: 10s; /* Adjusted: Further slowed scrolling on mobile (was 5s) for smoother loop */
